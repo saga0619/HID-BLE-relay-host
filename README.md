@@ -30,7 +30,7 @@ The application communicates with the dongle using the following custom UUIDs:
 
 ### Hardware
 - **USB Capture Card**: For HDMI video input (e.g., UGREEN Capture Card).
-- **nRF52840 Dongle**: Running the [HID Relay Dongle](https://github.com/saga0619/HID-Relay-Dongle) firmware.
+- **nRF52840 Dongle**: Running the [HID Relay Dongle](https://github.com/saga0619/HID_BLE_relay_dongle) firmware.
 
 ### Software
 - **Python 3.10+**
@@ -47,7 +47,7 @@ The application communicates with the dongle using the following custom UUIDs:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/saga0619/HID-Relay-Host.git
+git clone https://github.com/saga0619/HID_BLE_relay_host.git
 cd HID-Relay-Host
 ```
 
@@ -66,7 +66,7 @@ python main.py
 ## Usage
 
 ### Connecting to HID Relay Dongle
-1. Power on the nRF52840 Dongle with the [HID Relay Dongle](https://github.com/saga0619/HID-Relay-Dongle) firmware installed.
+1. Power on the nRF52840 Dongle with the [HID Relay Dongle](https://github.com/saga0619/HID_BLE_relay_dongle) firmware installed.
 2. The application scans for BLE devices supporting the custom Nordic UART Service UUIDs.
 3. The BLE connection is established automatically upon finding the dongle.
 
@@ -90,7 +90,7 @@ python main.py
 The **HID BLE Relay Host** works in conjunction with the **HID Relay Dongle** firmware. The dongle bridges the BLE keyboard input from this host application to a USB-connected server or headless system.
 
 Learn more about the HID Relay Dongle:  
-[HID Relay Dongle](https://github.com/saga0619/HID-Relay-Dongle)
+[HID Relay Dongle](https://github.com/saga0619/HID_BLE_relay_dongle)
 
 ---
 
@@ -116,4 +116,4 @@ This project integrates:
 - Nordic UART Service for BLE communication.
 - OpenCV for video capture and display.
 - PyQt5 for GUI development.
-- The [HID Relay Dongle](https://github.com/saga0619/HID-Relay-Dongle) firmware for seamless integration.
+- The [HID Relay Dongle](https://github.com/saga0619/HID_BLE_relay-dongle) firmware for seamless integration.
