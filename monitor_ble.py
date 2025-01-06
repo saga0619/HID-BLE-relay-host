@@ -20,9 +20,9 @@ from AVFoundation import AVCaptureDevice
 from qtkeystring import qt_key_to_string
 
 # ---- NUS(UART) UUID ----
-UART_SERVICE_UUID = "597f1290-5b99-477d-9261-f0ed801fc566"
-UART_RX_CHAR_UUID = "597f1291-5b99-477d-9261-f0ed801fc566"  # Write
-UART_TX_CHAR_UUID = "597f1292-5b99-477d-9261-f0ed801fc566"  # Notify
+HID_SERVICE_UUID = "597f1290-5b99-477d-9261-f0ed801fc566"
+HID_RX_CHAR_UUID = "597f1291-5b99-477d-9261-f0ed801fc566"  # Write
+HID_TX_CHAR_UUID = "597f1292-5b99-477d-9261-f0ed801fc566"  # Notify
 
 
 # ------------------------------------------------------
@@ -112,14 +112,16 @@ class BleManager:
     async def connect_and_run(self):
         # find and connect to NUS device, then register notify
 
-        # 1) Scan NUS Device
-        def match_nus_uuid(device: BLEDevice, adv: AdvertisementData):
-            if UART_SERVICE_UUID.lower() in adv.service_uuids:
-                return True
+        # 1) Scan Name 
+        def match_hid_device(device: BLEDevice, adv: AdvertisementData):
+            if device.name and "Remote HID BLE" in device.name:
+                if HID_SERVICE_UUID.lower() in [s.lower() for s in adv.service_uuids]:
+                    return True
             return False
 
         print("[BLE] Scanning NUS device...")
-        device = await BleakScanner.find_device_by_filter(match_nus_uuid)
+        device = await BleakScanner.find_device_by_filter(match_hid_device, timeout=5.0)
+        # print(device)
 
         if device is None:
             print("[BLE] NUS Device not found.")
@@ -138,12 +140,12 @@ class BleManager:
             print("[BLE] Connected!")
 
             # 3) Notify configuration (UART_TX_CHAR_UUID)
-            await client.start_notify(UART_TX_CHAR_UUID, self.handle_rx)
+            await client.start_notify(HID_TX_CHAR_UUID, self.handle_rx)
             print("[BLE] Notify on (waiting for data)")
 
             # 4) Save RX characteristic for write
-            nus_service = client.services.get_service(UART_SERVICE_UUID)
-            self.rx_char = nus_service.get_characteristic(UART_RX_CHAR_UUID)
+            nus_service = client.services.get_service(HID_SERVICE_UUID)
+            self.rx_char = nus_service.get_characteristic(HID_RX_CHAR_UUID)
 
             try:
                 while True:
@@ -159,10 +161,6 @@ class BleManager:
         print("[BLE] Recevied :", data)
 
     def send_data_sync(self, msg: str):
-        """
-        PyQt 메인 스레드에서 안전하게 호출할 수 있는 동기 함수.
-        내부적으로는 asyncio 코루틴에 태스크를 제출(run_coroutine_threadsafe).
-        """
         if not self.connected or not self.rx_char:
             print("[BLE] Not connected or RX characteristic not found.")
             return
@@ -170,7 +168,6 @@ class BleManager:
         future = asyncio.run_coroutine_threadsafe(
             self._send_data(msg), self.loop
         )
-        # 필요하다면 결과를 기다릴 수도 있으나, 여기서는 비동기 제출만 함.
         # e.g. result = future.result()
 
     async def _send_data(self, msg: str):
@@ -181,7 +178,7 @@ class BleManager:
 
         data = msg.encode()
         max_size = self.rx_char.max_write_without_response_size
-        # BLE 패킷 단위로 쪼개서 write
+        # sliced write for BLE packet size limit
         for chunk in sliced(data, max_size):
             await self.client.write_gatt_char(self.rx_char, chunk, response=False)
         print(f"[BLE] send complete : {msg}")
@@ -291,7 +288,7 @@ def main():
         print(f"Camera '{target_name}' not found.")
         sys.exit(1)
     
-    print(f"Selected Camera: {camera_names[selected_cam]}")
+    print(f"Selected Camera: {selected_cam} : {camera_names[selected_cam]}")
     # 1) BLE manager
     ble_manager = BleManager()
 
