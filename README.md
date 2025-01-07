@@ -1,6 +1,6 @@
 # HID BLE Relay Host
 
-The **HID BLE Relay Host** is a Python application designed to work with the **HID Relay Dongle** firmware running on an nRF52840 Dongle. It captures HDMI video from a USB capture card and transmits keyboard input over Bluetooth Low Energy (BLE) to the dongle, which relays the inputs to a USB-connected server or headless system as a HID keyboard.
+The **HID BLE Relay Host** is a Python application designed to work with the **HID Relay Dongle** firmware running on an nRF52840 Dongle. It captures HDMI video from a USB capture card and transmits keyboard and mouse input over Bluetooth Low Energy (BLE) to the dongle, which relays the hid inputs to a headless system.
 
 This application has been tested on macOS.
 
@@ -9,14 +9,11 @@ This application has been tested on macOS.
 ## Features
 
 ### 1. **HDMI Video Display**
-- Captures and displays real-time HDMI video feed via a USB capture card.
-- Supports high resolutions (up to 1920x1080 at 60 FPS).
-- Maintains aspect ratio for seamless viewing.
+- Captures and displays real-time HDMI video feed via a USB capture card, via pyqt5
 
-### 2. **Keyboard Input Transmission via BLE**
-- Detects and processes key press and release events when the application is focused.
-- Sends key events to the **HID Relay Dongle** using a custom Nordic UART Service (NUS) over BLE.
-- Ensures low-latency input relay for real-time interactions.
+### 2. **Keyboard and Mouse Input Transmission via BLE**
+- Detects and processes key and mouse press and release events when the application is focused.
+- Sends key events and absolute mouse event to the **HID Relay Dongle** using a custom Nordic UART Service (NUS) over BLE.
 
 ### 3. **Custom BLE UUIDs**
 The application communicates with the dongle using the following custom UUIDs:
@@ -35,10 +32,8 @@ The application communicates with the dongle using the following custom UUIDs:
 ### Software
 - **Python 3.10+**
 - Python packages (install with `pip`):
-  - `opencv-python`
   - `PyQt5`
   - `bleak`
-  - `AVFoundation`
   - `qtkeystring`
 
 ---
@@ -77,8 +72,13 @@ python main.py
 
 ### Keyboard Input
 - While the application window is in focus:
-  - **Key Press**: Sends a BLE message in the format `P:<KeyCode>` to the dongle.
-  - **Key Release**: Sends a BLE message in the format `R:<KeyCode>` to the dongle.
+  - **Key Press**: Sends a BLE message in the format `KP:<KeyCode>` to the dongle.
+  - **Key Release**: Sends a BLE message in the format `KR:<KeyCode>` to the dongle.
+
+### Mouse Input
+- While the application window is in focus:
+  - **Mouse Press**: Sends a BLE message in the format `M<Action>:<Xcoordinate>,<Ycoordinate>` to the dongle.
+  - **Mouse Release**: Sends a BLE message in the format `M<Action>:<Xcoordinate>,<Ycoordinate>` to the dongle.
 
 ### Closing the Application
 - Exit the application window to stop video capture and BLE communication.
