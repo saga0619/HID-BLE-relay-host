@@ -35,6 +35,7 @@ def sliced(data: bytes, n: int) -> Iterator[bytes]:
 class VideoCaptureAsync:
     def __init__(self, src=0):
         self.src = src
+        print(f"Opening camera {src}...")
         self.cap = cv2.VideoCapture(self.src)
         self.grabbed, self.frame = self.cap.read()
         self.stopped = False
@@ -276,7 +277,12 @@ def select_camera_by_name(target_name, camera_names):
 # ===================================================
 # 4. main 
 # ===================================================
+# If get Args, use it as camera index
 def main():
+
+
+
+
     target_name = "UGREEN-25854"
     camera_names = get_camera_names()
     print("Available Cameras:")
